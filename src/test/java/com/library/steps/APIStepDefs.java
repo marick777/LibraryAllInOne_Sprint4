@@ -1,10 +1,12 @@
 package com.library.steps;
 
 import com.library.utility.ConfigurationReader;
+import com.library.utility.DB_Util;
 import com.library.utility.LibraryAPI_Util;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -12,6 +14,7 @@ import io.restassured.specification.RequestSpecification;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.keyStore;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -24,7 +27,8 @@ public class APIStepDefs {
     Response addRequest;
     Map<String,Object> newBookPost;
     Map<String,Object> newUserPost;
-    Map<String,Object> mapRequest;
+    static Map<String,Object> mapRequest;
+    static int userId;
      /**
      * US 01 RELATED STEPS
      *
@@ -81,6 +85,7 @@ public class APIStepDefs {
                 mapRequest = newUserPost;
 
         }
+        System.out.println("mapRequest = " + mapRequest);
     }
 
     @When("I send POST request to {string} endpoint")
@@ -99,7 +104,10 @@ public class APIStepDefs {
     public void the_field_value_for_path_should_be_equal_to(String string, String string2) {
 
         addRequest.then().body(string, is(string2));
+        JsonPath jsonPath = addRequest.jsonPath();
+        userId = jsonPath.getInt("user_id");
     }
+
 
 }
 
