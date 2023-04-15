@@ -21,12 +21,11 @@ public class APIStepDefs {
     RequestSpecification givenPart;
     Response response;
     ValidatableResponse thenPart;
-
-    Response addBook;
-
-    Map<String,Object> newBookPOST;
-    LibraryAPI_Util postBook = new LibraryAPI_Util();
-    /**
+    Response addRequest;
+    Map<String,Object> newBookPost;
+    Map<String,Object> newUserPost;
+    Map<String,Object> mapRequest;
+     /**
      * US 01 RELATED STEPS
      *
      */
@@ -60,31 +59,34 @@ public class APIStepDefs {
         thenPart.body(path, is(notNullValue()));
     }
 
-
-    /*
-    US03 Related Steps
-     */
-
     @Given("Request Content Type header is {string}")
     public void request_content_type_header_is(String contentType) {
         givenPart.contentType(contentType);
     }
     @Given("I create a random {string} as request body")
-    public void i_create_a_random_as_request_body(String book) {
+    public void i_create_a_random_as_request_body(String request) {
 
-        newBookPOST = LibraryAPI_Util.getRandomBookMap();
+        switch (request){
+            case "book":
+                newBookPost = LibraryAPI_Util.getRandomBookMap();
+                mapRequest = newBookPost;
+                break;
+            case "user":
+                newUserPost = LibraryAPI_Util.getRandomUserMap();
+                mapRequest = newUserPost;
+
+        }
     }
     @When("I send POST request to {string} endpoint")
     public void i_send_post_request_to_endpoint(String endpoint) {
 
-        addBook = givenPart
-                .and()
-                .contentType("application/x-www-form-urlencoded")
-                .formParams(newBookPOST)
-                .when()
-                .post(ConfigurationReader.getProperty("library.baseUri") + endpoint).prettyPeek();
-
-        thenPart = addBook.then();
+            addRequest = givenPart
+                    .and()
+                    .contentType("application/x-www-form-urlencoded")
+                    .formParams(mapRequest)
+                    .when()
+                    .post(ConfigurationReader.getProperty("library.baseUri") + endpoint).prettyPeek();
+            thenPart = addRequest.then();
 
 
 
@@ -92,7 +94,7 @@ public class APIStepDefs {
     @Then("the field value for {string} path should be equal to {string}")
     public void the_field_value_for_path_should_be_equal_to(String string, String string2) {
 
-        addBook.then().body(string, is(string2));
+        addRequest.then().body(string, is(string2));
     }
 
 }

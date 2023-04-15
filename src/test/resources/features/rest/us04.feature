@@ -1,4 +1,5 @@
 Feature: As a librarian, I want to create a new user
+
   @us04
   Scenario: Create a new user API
     Given I logged Library api as a "librarian"
