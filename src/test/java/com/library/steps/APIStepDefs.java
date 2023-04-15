@@ -5,21 +5,27 @@ import com.library.utility.LibraryAPI_Util;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.hamcrest.Matchers;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import java.util.Map;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
 
 public class APIStepDefs {
 
     RequestSpecification givenPart;
     Response response;
     ValidatableResponse thenPart;
+
+    Response addBook;
+
+    Map<String,Object> newBookPOST;
+    LibraryAPI_Util postBook = new LibraryAPI_Util();
     /**
      * US 01 RELATED STEPS
      *
@@ -43,6 +49,7 @@ public class APIStepDefs {
     @Then("status code should be {int}")
     public void status_code_should_be(Integer statusCode) {
         thenPart.statusCode(statusCode);
+
     }
     @Then("Response Content type is {string}")
     public void response_content_type_is(String contentType) {
@@ -50,7 +57,44 @@ public class APIStepDefs {
     }
     @Then("{string} field should not be null")
     public void field_should_not_be_null(String path) {
-        thenPart.body(path, everyItem(notNullValue()));
+        thenPart.body(path, is(notNullValue()));
+    }
+
+
+    /*
+    US03 Related Steps
+     */
+
+    @Given("Request Content Type header is {string}")
+    public void request_content_type_header_is(String contentType) {
+        givenPart.contentType(contentType);
+    }
+    @Given("I create a random {string} as request body")
+    public void i_create_a_random_as_request_body(String book) {
+
+        newBookPOST = LibraryAPI_Util.getRandomBookMap();
+    }
+    @When("I send POST request to {string} endpoint")
+    public void i_send_post_request_to_endpoint(String endpoint) {
+
+        addBook = givenPart
+                .and()
+                .contentType("application/x-www-form-urlencoded")
+                .formParams(newBookPOST)
+                .when()
+                .post(ConfigurationReader.getProperty("library.baseUri") + endpoint).prettyPeek();
+
+        thenPart = addBook.then();
+
+
+
+    }
+    @Then("the field value for {string} path should be equal to {string}")
+    public void the_field_value_for_path_should_be_equal_to(String string, String string2) {
+
+        addBook.then().body(string, is(string2));
     }
 
 }
+
+
