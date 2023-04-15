@@ -3,6 +3,7 @@ package com.library.steps;
 import com.library.utility.ConfigurationReader;
 import com.library.utility.DB_Util;
 import com.library.utility.LibraryAPI_Util;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,12 +11,14 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.junit.Assert;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.keyStore;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
 
 
@@ -109,6 +112,24 @@ public class APIStepDefs {
     }
 
 
+    @And("Path param is {string}")
+    public void pathParamIs(String id) {
+    givenPart.pathParam("id",id);
+    }
+
+    @And("{string} field should be same with path param")
+    public void fieldShouldBeSameWithPathParam(String id) {
+        String actualID = response.jsonPath().getString(id);
+
+        thenPart.body(id,is(actualID));
+    }
+
+    @And("following fields should not be null")
+    public void followingFieldsShouldNotBeNull(List<String> fields) {
+        for (String field : fields) {
+            Assert.assertNotNull(field);
+        }
+    }
 }
 
 
